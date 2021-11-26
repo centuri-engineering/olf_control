@@ -37,6 +37,8 @@ class USBCamera:
 
     @resolution.setter
     def resolution(self, resolution):
+        print(f"setting resolution to ({resolution}) in core camera")
+
         width, height = resolution
         self._camera.set(cv.CAP_PROP_FRAME_WIDTH, width)
         self._camera.set(cv.CAP_PROP_FRAME_HEIGHT, height)
@@ -71,7 +73,8 @@ class USBCamera:
         stack = np.empty((w, h, 3, n))
         for i in range(n):
             stack[..., i] = self.data / n
-        return stack.sum(axis=-1).astype(np.uint8)
+        # BGR to RGB
+        return stack.sum(axis=-1).astype(np.uint8)[..., ::-1]
 
     @property
     def data(self):

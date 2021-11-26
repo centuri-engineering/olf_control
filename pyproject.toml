@@ -20,6 +20,7 @@ classifiers=[
 ]
 packages = [
     { include = "olf_control" },
+    { include = "olf_control/things" },
     { include = "tests", format = "sdist" },
 ]
 
