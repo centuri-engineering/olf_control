@@ -1,7 +1,10 @@
+import json
 import time
 
-from labthings import ActionView, PropertyView, create_app, fields, find_component, op
+from labthings import ActionView, PropertyView, fields, find_component, op
 from labthings.json import encode_json
+
+from .utilities import ndarray_to_json
 
 
 class ResolutionProperty(PropertyView):
@@ -11,18 +14,16 @@ class ResolutionProperty(PropertyView):
     @op.readproperty
     def get(self):
         # When a GET request is made, we'll find our attached component
-        my_component = find_component("org.centuri.olf.usb_camera")
-        return my_component.resolution
+        camera = find_component("org.centuri.olf.usb_camera")
+        return camera.resolution
 
     @op.writeproperty
     def put(self, new_property_value):
         # Find our attached component
-        my_component = find_component("org.centuri.olf.usb_camera")
-
+        camera = find_component("org.centuri.olf.usb_camera")
         # Apply the new value
-        my_component.resolution = new_property_value
-
-        return my_component.resolution
+        camera.resolution = new_property_value
+        return camera.resolution
 
 
 """
@@ -37,21 +38,20 @@ class AquireAverage(ActionView):
         "averages": fields.Integer(
             missing=20,
             example=20,
-            description="Number of images sets to average over",
+            description="Number of images to average over",
         )
     }
     # Marshal the response as a string representation of the array
-    schema = fields.Bytes()
+    schema = fields.String()
 
     # Main function to handle POST requests
     @op.invokeaction
     def post(self, args):
         """Start an averaged measurement"""
-        print(args)
         # Find our attached component
         camera = find_component("org.centuri.olf.usb_camera")
 
         # Get arguments and start a background task
         n_averages = args.get("averages")
         # Return the task information
-        return camera.average(n_averages).tobytes()
+        return json.dumps(ndarray_to_json(camera.average(n_averages)))
