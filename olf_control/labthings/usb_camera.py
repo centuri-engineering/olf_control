@@ -30,10 +30,10 @@ class USBCamera:
 
     @property
     def resolution(self):
-        return (
+        return [
             int(self._camera.get(cv.CAP_PROP_FRAME_WIDTH)),
             int(self._camera.get(cv.CAP_PROP_FRAME_HEIGHT)),
-        )
+        ]
 
     @resolution.setter
     def resolution(self, resolution):
@@ -64,8 +64,9 @@ class USBCamera:
             frame = frame[xi:xf, yi:yf, :]
         return frame
 
-    def average(self, n):
+    def average(self, n=3):
         """Average n frames"""
+        print(f"averaging over {n} frames")
         h, w = self.resolution
         stack = np.empty((w, h, 3, n))
         for i in range(n):
