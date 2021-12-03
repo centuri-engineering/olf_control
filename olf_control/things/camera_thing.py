@@ -11,18 +11,14 @@ from .utilities import ndarray_to_json
 class ResolutionProperty(PropertyView):
 
     schema = fields.List(fields.Int(required=True, minimum=1, maximum=10000))
-    args = {
-        "width": fields.Integer(
-            missing=640,
-            example=640,
-            description="Number of images to average over",
-        ),
-        "height": fields.Integer(
-            missing=480,
-            example=480,
-            description="Number of images to average over",
-        ),
-    }
+    # args = {
+    #     "width": fields.Integer(
+    #         missing=640, example=640, description="Number of images to average over",
+    #     ),
+    #     "height": fields.Integer(
+    #         missing=480, example=480, description="Number of images to average over",
+    #     ),
+    # }
 
     @op.readproperty
     def get(self):
@@ -31,9 +27,11 @@ class ResolutionProperty(PropertyView):
         return camera.resolution
 
     @op.writeproperty
-    def put(self, width: int, height: int):
+    def put(self, args):
         # Find our attached component
         camera = find_component("org.centuri.olf.usb_camera")
+        print("args:", args)
+        width, height = args
         # Apply the new value
         print(f"setting resolution to ({(width, height)})")
         camera.resolution = (width, height)

@@ -8,7 +8,7 @@ def create_camera_app():
     # Create LabThings Flask app
     app, labthing = create_app(
         __name__,
-        title="My Lab Device API",
+        title="USB camera app (test)",
         description="Test LabThing-based API",
         version="0.1.0",
     )
