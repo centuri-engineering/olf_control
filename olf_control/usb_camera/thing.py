@@ -1,34 +1,40 @@
 import json
 import time
+from typing import List
 
 from labthings import ActionView, PropertyView, fields, find_component, op
 from labthings.deque import Deque
 from labthings.json import encode_json
 
-from .utilities import ndarray_to_json
+from ..utilities import ndarray_to_json
 
 
 class ResolutionProperty(PropertyView):
+    """This class defines a resolution property that can be get or set
+    through the app REST API
+
+    For exemple:
+
+    .. code:: python
+        import requests
+        # get the resolution
+        req = requests.get("http://localhost:7485/resolution")
+        print(req.json())
+        # set the resolution
+        req = requests.put("http://localhost:7485/resolution", json=[800, 600])
+    """
 
     schema = fields.List(fields.Int(required=True, minimum=1, maximum=10000))
-    # args = {
-    #     "width": fields.Integer(
-    #         missing=640, example=640, description="Number of images to average over",
-    #     ),
-    #     "height": fields.Integer(
-    #         missing=480, example=480, description="Number of images to average over",
-    #     ),
-    # }
 
     @op.readproperty
     def get(self):
-        # When a GET request is made, we'll find our attached component
+        """Retrieves the plugged camera's resolution"""
         camera = find_component("org.centuri.olf.usb_camera")
         return camera.resolution
 
     @op.writeproperty
-    def put(self, args):
-        # Find our attached component
+    def put(self, args: List[int]):
+        """Sets the plugged camera's resolution"""
         camera = find_component("org.centuri.olf.usb_camera")
         print("args:", args)
         width, height = args
@@ -45,26 +51,17 @@ Create a view to start an averaged measurement, and register is as a Thing actio
 
 
 class AquireAverage(ActionView):
-    # Expect JSON parameters in the request body.
-    # Pass to post function as dictionary argument.
+    """This action allows to get an image averaged over a certain number of acquitions"""
+
     args = {
         "averages": fields.Integer(
-            missing=20,
+            missing=1,
             example=20,
             description="Number of images to average over",
         )
     }
     # Marshal the response as a string representation of the array
     schema = fields.String()
-    # Use a smaller deque than the default of length 100
-    # TODO - see https://github.com/labthings/python-labthings/issues/300
-    # def __init__(self, *args, **kwargs):
-    #     super().__init__(*args, **kwargs)
-    #     self._deque = Deque(maxlen=10)
-
-    # # def __init_subclass__(cls):
-    # #     cls._deque = Deque(maxlen=10)  # Action queue
-
     # Main function to handle POST requests
 
     @op.invokeaction
@@ -72,7 +69,6 @@ class AquireAverage(ActionView):
         """Start an averaged measurement"""
         # Find our attached component
         camera = find_component("org.centuri.olf.usb_camera")
-        print("deque length", len(self._deque))
         # Get arguments and start a background task
         n_averages = args.get("averages")
         # Acquire the images

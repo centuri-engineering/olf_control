@@ -1,5 +1,10 @@
+import logging
+
 import cv2 as cv
 import numpy as np
+
+log = logging.getLogger(__name__)
+log.addHandler(logging.StreamHandler())
 
 
 class USBCamera:
@@ -10,7 +15,12 @@ class USBCamera:
     """
 
     def __init__(self, idx=0):
+        """plugs into a camera, ``idx`` is the camera index in the device list
 
+        See Also
+        ----------
+        cv.VideoCapture : the underlying camera interface
+        """
         self.device_idx = idx
         self._camera = cv.VideoCapture(idx)
         self.hflip = False
@@ -37,7 +47,7 @@ class USBCamera:
 
     @resolution.setter
     def resolution(self, resolution):
-        print(f"setting resolution to ({resolution}) in core camera")
+        log.info(f"setting resolution to ({resolution}) in core camera")
 
         width, height = resolution
         self._camera.set(cv.CAP_PROP_FRAME_WIDTH, width)
@@ -68,7 +78,7 @@ class USBCamera:
 
     def average(self, n=3):
         """Average n frames"""
-        print(f"averaging over {n} frames")
+        log.info(f"averaging over {n} frames")
         h, w = self.resolution
         stack = np.empty((w, h, 3, n))
         for i in range(n):

@@ -1,6 +1,9 @@
+"""Standalone  app for a USB camera
+"""
+
 from labthings import create_app
 
-from .camera_thing import AquireAverage, ResolutionProperty
+from .thing import AquireAverage, ResolutionProperty
 from .usb_camera import USBCamera
 
 
