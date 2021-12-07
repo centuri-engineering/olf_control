@@ -1,4 +1,5 @@
 import json
+import logging
 import time
 from typing import List
 
@@ -7,6 +8,8 @@ from labthings.deque import Deque
 from labthings.json import encode_json
 
 from ..utilities import ndarray_to_json
+
+log = logging.getLogger(__name__)
 
 
 class ResolutionProperty(PropertyView):
@@ -36,10 +39,10 @@ class ResolutionProperty(PropertyView):
     def put(self, args: List[int]):
         """Sets the plugged camera's resolution"""
         camera = find_component("org.centuri.olf.usb_camera")
-        print("args:", args)
+        log.debug("args passed to ResolutionProperty.put:", args)
         width, height = args
         # Apply the new value
-        print(f"setting resolution to ({(width, height)})")
+        log.debug(f"setting resolution to ({(width, height)})")
         camera.resolution = (width, height)
 
         return camera.resolution
