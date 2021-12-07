@@ -40,7 +40,7 @@ class Position(PropertyView):
 
 class Step(ActionView):
     args = {
-        "Axis": fields.String(
+        "axis": fields.String(
             missing="X",
             example="X",
             description="Axis to step over",
@@ -56,7 +56,7 @@ class Step(ActionView):
         """ """
         scanner = find_component("org.centuri.olf.scanner")
         step = args.get("step", 1.0)
-        axis = args.get("Axis", "X")
+        axis = args.get("axis", "X")
         new_pos = [
             0.0,
         ] * scanner.dim
