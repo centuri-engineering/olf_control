@@ -19,8 +19,8 @@ class Axes(PropertyView):
 
     @op.property
     def get(self):
-        scanner = find_component("org.centuri.olf.scanner")
-        return scanner.axes
+        motors = find_component("org.centuri.olf.motors")
+        return motors.axes
 
 
 class Position(PropertyView):
@@ -28,14 +28,14 @@ class Position(PropertyView):
 
     @op.property
     def get(self):
-        scanner = find_component("org.centuri.olf.scanner")
-        return scanner.pos
+        motors = find_component("org.centuri.olf.motors")
+        return motors.pos
 
     @op.property
     def put(self, new_pos: List(float)):
-        scanner = find_component("org.centuri.olf.scanner")
-        scanner.delayed_line(new_pos, relative=False)
-        return scanner.pos
+        motors = find_component("org.centuri.olf.motors")
+        motors.delayed_line(new_pos, relative=False)
+        return motors.pos
 
 
 class Step(ActionView):
@@ -54,16 +54,16 @@ class Step(ActionView):
 
     def post(self, args):
         """ """
-        scanner = find_component("org.centuri.olf.scanner")
+        motors = find_component("org.centuri.olf.motors")
         step = args.get("step", 1.0)
         axis = args.get("axis", "X")
         new_pos = [
             0.0,
-        ] * scanner.dim
+        ] * motors.dim
         try:
-            new_pos[scanner.axes.index(axis)] = step
+            new_pos[motors.axes.index(axis)] = step
         except ValueError as err:
             raise ValueError(f"Unknown axis, {axis}") from err
 
-        scanner.delayed_line(new_pos, relative=True)
-        return scanner.pos
+        motors.delayed_line(new_pos, relative=True)
+        return motors.pos

@@ -1,10 +1,7 @@
-"""Standalone  app for a USB camera
-"""
-
 from labthings import create_app
 
-from .things import USBCamera
-from .views import AquireAverage, ResolutionProperty
+from .things import Configuration, Motors
+from .views import Axes, Position, Step
 
 
 def create_camera_app():
@@ -15,15 +12,16 @@ def create_camera_app():
         description="Test LabThing-based API",
         version="0.1.0",
     )
-
+    conf = Configuration()
     # Attach an instance of our component
     # Usually a Python object controlling some piece of hardware
-    my_camera = USBCamera()
-    labthing.add_component(my_camera, "org.centuri.olf.usb_camera")
+    motors = Motors(conf)
+    labthing.add_component(motors, "org.centuri.olf.motors")
 
     # Add routes for the API views we created
-    labthing.add_view(ResolutionProperty, "/resolution")
-    labthing.add_view(AquireAverage, "/actions/average")
+    labthing.add_view(Axes, "/axes")
+    labthing.add_view(Position, "/position")
+    labthing.add_view(Position, "/actions/step")
 
     return app, labthing
 

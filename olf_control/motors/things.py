@@ -43,8 +43,8 @@ class MockSerial:
         return b"ok\r\n"
 
 
-class Scanner:
-    """Base class for a GCODE-based  scanner"""
+class Motors:
+    """Base class for a GCODE-based  motorized stage"""
 
     def __init__(self, conf):
         try:
