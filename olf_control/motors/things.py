@@ -2,18 +2,19 @@ import datetime
 import logging
 import sys
 import time
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import List
 
 import serial
 
 log = logging.getLogger(__name__)
+log.addHandler(logging.StreamHandler())
 
 
 @dataclass
 class Configuration:
     axes: str = "XY"
-    origin: List[float] = [0.0, 0.0]
+    origin: List[float] = field(default_factory=lambda: [0.0, 0.0])
     # /dev/ttyACM0 (Joy-it), /dev/ttyUSB0 (original board)
     board_path: str = "/dev/ttyACM0"
     baudrate: int = 115200
@@ -24,6 +25,7 @@ class Configuration:
     # Considering acceleration and deceleration phases (hence *2):
     time_acc: float = (max_rate_s / max_acc) * 2
     dist_acc: float = max_rate_s * time_acc
+    delay_for_action: float = 0.01
 
 
 class MockSerial:
@@ -31,6 +33,7 @@ class MockSerial:
         self.board_path = board_path
         self.baudrate = baudrate
         self.messages = []
+        self.in_waiting = 0
 
     def write(self, msg):
         """Sends message to logger and returns it"""
@@ -57,10 +60,10 @@ class Motors:
         self.dim = len(conf.axes)
         self.pos = [
             0.0,
-        ] * self.dim()
+        ] * self.dim
         self.homing()
         # Move to origin
-        self.delayed_line(self.serial, self.conf.origin)
+        self.delayed_line(self.conf.origin)
         self.set_origin()
         self.scanning = False
         self.moving = False
@@ -68,8 +71,6 @@ class Motors:
     def serial_com_check(self):
         """Reads the receceived data from grbl."""
         # Wait for the data to be received
-        if isinstance(serial, MockSerial):
-            return
 
         while self.serial.in_waiting != 0:
             theline = self.serial.readline()

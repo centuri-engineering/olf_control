@@ -17,7 +17,7 @@ class Axes(PropertyView):
 
     schema = fields.String(required=True)
 
-    @op.property
+    @op.readproperty
     def get(self):
         motors = find_component("org.centuri.olf.motors")
         return motors.axes
@@ -26,13 +26,13 @@ class Axes(PropertyView):
 class Position(PropertyView):
     schema = fields.List(fields.Float(required=True))
 
-    @op.property
+    @op.readproperty
     def get(self):
         motors = find_component("org.centuri.olf.motors")
         return motors.pos
 
-    @op.property
-    def put(self, new_pos: List(float)):
+    @op.writeproperty
+    def put(self, new_pos: List[float]):
         motors = find_component("org.centuri.olf.motors")
         motors.delayed_line(new_pos, relative=False)
         return motors.pos
@@ -50,8 +50,9 @@ class Step(ActionView):
         ),
     }
 
-    schema = fields.list(fields.Float)
+    schema = fields.List(fields.Float)
 
+    @op.invokeaction
     def post(self, args):
         """ """
         motors = find_component("org.centuri.olf.motors")
