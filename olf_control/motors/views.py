@@ -7,7 +7,6 @@ import time
 from typing import List
 
 from labthings import ActionView, PropertyView, fields, find_component, op
-from labthings.deque import Deque
 from labthings.json import encode_json
 
 log = logging.getLogger(__name__)
@@ -39,6 +38,7 @@ class Position(PropertyView):
 
 
 class Step(ActionView):
+
     args = {
         "axis": fields.String(
             missing="X",

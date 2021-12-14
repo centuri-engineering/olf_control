@@ -8,8 +8,8 @@ def create_motors_app():
     # Create LabThings Flask app
     app, labthing = create_app(
         __name__,
-        title="USB camera app (test)",
-        description="Test LabThing-based API",
+        title="StepperMotor",
+        description="Control stepper motors",
         version="0.1.0",
     )
     conf = Configuration()

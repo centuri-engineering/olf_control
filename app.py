@@ -1,17 +1,15 @@
-from labthings import create_app, Server
-
-
-from olf_control.usb_camera.things import USBCamera
-from olf_control.usb_camera.views import AquireAverage, ResolutionProperty
+from labthings import Server, create_app
 from olf_control.motors.things import Configuration, Motors
 from olf_control.motors.views import Axes, Position, Step
+from olf_control.usb_camera.things import USBCamera
+from olf_control.usb_camera.views import AquireAverage, ResolutionProperty
 
 
 def create_olf_app():
     # Create LabThings Flask app
     app, labthing = create_app(
         __name__,
-        title="USB camera app (test)",
+        title="Open Lab Frame",
         description="Test LabThing-based API",
         version="0.1.0",
     )

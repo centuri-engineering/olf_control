@@ -118,7 +118,7 @@ class Motors:
         if relative:
             log.info("setting relative mvmt")
             self.serial.write(b"G91 \r\n")
-            time.sleep(0.1)
+            time.sleep(0.01)
         self.serial_com_check()
         coords = " ".join(f"{C}{coord}" for C, coord in zip(self.axes, vector))
         line = f"G0 {coords} \r\n".encode()
@@ -126,8 +126,8 @@ class Motors:
         self.serial.write(line)
         self.serial_com_check()
         self.serial.write(b"G90 \r\n")
-        self.serial.write(b"?")
-        print(self.serial.readline())
+        # self.serial.write(b"?")
+        # print(self.serial.readline())
 
         if relative:
             self.pos = [old_coord + coord for old_coord, coord in zip(self.pos, vector)]
