@@ -8,13 +8,14 @@ from typing import List
 import serial
 
 log = logging.getLogger(__name__)
+log.setLevel("INFO")
 log.addHandler(logging.StreamHandler())
 
 
 @dataclass
 class Configuration:
     axes: str = "XY"
-    origin: List[float] = field(default_factory=lambda: [0.0, 0.0])
+    origin: List[float] = field(default_factory=lambda: [20.0, 20.0])
     # /dev/ttyACM0 (Joy-it), /dev/ttyUSB0 (original board)
     board_path: str = "/dev/ttyACM0"
     baudrate: int = 115200
@@ -61,6 +62,8 @@ class Motors:
         self.pos = [
             0.0,
         ] * self.dim
+        time.sleep(3)
+
         self.homing()
         # Move to origin
         self.delayed_line(self.conf.origin)
@@ -74,14 +77,13 @@ class Motors:
 
         while self.serial.in_waiting != 0:
             theline = self.serial.readline()
-            log.debug("- Message received - %s ", theline.decode("utf-8"))
+            log.info("- Message received - %s ", theline.decode("utf-8"))
             if theline == b"ALARM:1\r\n":
                 msg = """Endstop triggered, re-establishing contact."""
                 log.error(msg)
                 self.serial.close()
                 self.serial.open()
                 time.sleep(2)
-            time.sleep(0.001)
 
     def set_origin(self):
         """Sets the present position to X=0, Y=0 (and Z0)"""
@@ -101,10 +103,9 @@ class Motors:
         log.info("Serial communication working.")
         self.serial.write(b"$h\r\n")
         while self.serial.readline() != b"ok\r\n":
-            log.debug("Waiting until the homing is done.")
+            print("Waiting until the homing is done.")
             self.serial_com_check()
 
-        log.info("Waiting until the homing is done.")
         self.serial_com_check()
         log.info("Homing done.")
         self.pos = [-coord for coord in self.conf.origin]
@@ -115,17 +116,22 @@ class Motors:
         If `relative` is True, the line is relative to curent position.
         """
         if relative:
+            log.info("setting relative mvmt")
             self.serial.write(b"G91 \r\n")
+            time.sleep(0.1)
         self.serial_com_check()
-        line = " ".join(
-            f"G0 {C}{coord} " for C, coord in zip(self.axes, vector)
-        ).encode()
+        coords = " ".join(f"{C}{coord}" for C, coord in zip(self.axes, vector))
+        line = f"G0 {coords} \r\n".encode()
+        log.info(line)
         self.serial.write(line)
         self.serial_com_check()
         self.serial.write(b"G90 \r\n")
-        self.serial_com_check()
+        self.serial.write(b"?")
+        print(self.serial.readline())
+
         if relative:
             self.pos = [old_coord + coord for old_coord, coord in zip(self.pos, vector)]
+            log.info("current pos %s", self.pos)
         else:
             self.pos = vector
 
@@ -138,7 +144,10 @@ class Motors:
         """
         self.simple_line(new_pos, relative=relative)
         self.moving = True
-        time.sleep(self.travel_time(new_pos, relative=relative))
+        travel_time = self.travel_time(new_pos, relative=relative)
+        log.info("sleeping %s", travel_time)
+        time.sleep(travel_time)
+
         self.moving = False
 
     def travel_time(self, new_pos, relative=True):
